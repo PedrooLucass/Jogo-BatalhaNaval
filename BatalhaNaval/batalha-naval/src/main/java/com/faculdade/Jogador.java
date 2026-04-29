@@ -1,9 +1,9 @@
 package com.faculdade;
 
 public class Jogador {
-    String nome;
-    Mapa mapa;
-    ClientHandler clientHandler;
+    public String nome;
+    private Mapa mapa;
+    private ClientHandler clientHandler;
 
     public Jogador(String nome) {
         this.nome = nome;
@@ -11,5 +11,9 @@ public class Jogador {
 
     public void setClientHandler(ClientHandler clientHandler) {
         this.clientHandler = clientHandler;
+    }
+
+    public ClientHandler getClientHandler() {
+        return clientHandler;
     }
 }

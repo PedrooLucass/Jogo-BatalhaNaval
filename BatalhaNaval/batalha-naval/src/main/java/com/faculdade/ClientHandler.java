@@ -54,6 +54,18 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    public void enviarMensagem(Mensagem mensagem) {
+        try {
+            writer.write(mensagem.getMensagem());
+            writer.newLine();
+            writer.flush();
+        } catch (Exception e) {
+            closeClientHandler(socket, reader, writer, scanner);
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public void closeClientHandler(Socket socket, BufferedReader reader, BufferedWriter writer, Scanner scanner) {
         try {
             if (socket != null) {

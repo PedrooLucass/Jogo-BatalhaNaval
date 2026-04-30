@@ -27,10 +27,12 @@ public class Jogo {
             servidor.enviarMensagemPrivada(jogador, new Mensagem("Gostaria de posicionar sua embarcação ou prefere deixar-lá posicionar aleatóriamente?"));
             servidor.enviarMensagemPrivada(jogador, new Mensagem("1 - Prefiro eu mesmo posicionar\n2 - Prefiro aleatóriamente"));
             // Ainda não temos função para entrada do cliente ainda
-            int opcaoEmbarcacao = 2;
+
+            // Posicionar aleatoriamente eh de fuder hein d=(^o^)=b
+            int opcaoEmbarcacao = 1;
             
-            if (opcaoEmbarcacao == 1) {
-                // Em desenvolvimento
+            if (opcaoEmbarcacao == 1){
+
             } else if (opcaoEmbarcacao == 2) {
                 // Em desenvolvimento
             }

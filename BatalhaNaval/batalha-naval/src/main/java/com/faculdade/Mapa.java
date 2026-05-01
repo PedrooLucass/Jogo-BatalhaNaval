@@ -1,27 +1,46 @@
 package com.faculdade;
 
 public class Mapa {
-    char[][] visivel;
-    char[][] oculto;
+
+    public static int TAMANHO_MAPA = 30;
+
+    private char[][] visivel;
+    private char[][] oculto;
 
     public Mapa() {
-        visivel = new char[30][30];
-        oculto = new char[30][30];
+        visivel = new char[TAMANHO_MAPA][TAMANHO_MAPA];
+        oculto = new char[TAMANHO_MAPA][TAMANHO_MAPA];
         inicializarMapa();
     }
 
     private void inicializarMapa(){
-        for(int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
+        for(int i = 0; i < TAMANHO_MAPA; i++) {
+            for (int j = 0; j < TAMANHO_MAPA; j++) {
                 visivel[i][j] = 'O';
                 oculto[i][j] = 'V';
             }
         }
     }
 
+    public char getCoordenadaOculta(int x, int y) {
+        return oculto[x][y];
+    }
+
+    public boolean verificarCoordenadaParaEmbarcacao(int x, int y) {
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 2; j++) {
+                if (getCoordenadaOculta((x+i), (y+j)) != 'V') { return false; }
+                if (getCoordenadaOculta((x-i), (y-j)) != 'V') { return false; }
+                if (getCoordenadaOculta((x+i), (y-j)) != 'V') { return false; }
+                if (getCoordenadaOculta((x-i), (y+j)) != 'V') { return false; }
+            }
+        }
+        return true;
+    }
+
     public void printarMapaVisivel(){
-        for(int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
+        for(int i = 0; i < TAMANHO_MAPA; i++) {
+            for (int j = 0; j < TAMANHO_MAPA; j++) {
                 System.out.print(visivel[i][j] + " ");
             }
             System.out.println();
@@ -29,8 +48,8 @@ public class Mapa {
     }
 
     public void printarMapaOculto() {
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
+        for (int i = 0; i < TAMANHO_MAPA; i++) {
+            for (int j = 0; j < TAMANHO_MAPA; j++) {
                 System.out.print(visivel[i][j] + " ");
             }
             System.out.println();

@@ -6,7 +6,6 @@ import java.util.List;
 
 public class Jogador {
     public String nome;
-    private Mapa mapa; //O mapa nao deveria ta sendo criado na classe Jogo?
     private ClientHandler clientHandler;
     List<Embarcacao> embarcacoes = new ArrayList<>();
 

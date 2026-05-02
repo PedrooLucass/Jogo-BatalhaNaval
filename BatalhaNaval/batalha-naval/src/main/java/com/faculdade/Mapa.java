@@ -13,6 +13,9 @@ public class Mapa {
         inicializarMapa();
     }
 
+    public int getTamanhoMapa() { return TAMANHO_MAPA; }
+    public char getCoordenadaOculta(int x, int y) { return oculto[x][y]; }
+
     private void inicializarMapa(){
         for(int i = 0; i < TAMANHO_MAPA; i++) {
             for (int j = 0; j < TAMANHO_MAPA; j++) {
@@ -22,11 +25,10 @@ public class Mapa {
         }
     }
 
-    public char getCoordenadaOculta(int x, int y) {
-        return oculto[x][y];
-    }
+    public boolean verificarCoordenadaParaEmbarcacao(Coordenada coordenada) {
+        int x = coordenada.getX();
+        int y = coordenada.getY();
 
-    public boolean verificarCoordenadaParaEmbarcacao(int x, int y) {
         for(int i = 0; i < 2; i++) {
             for(int j = 0; j < 2; j++) {
                 if (getCoordenadaOculta((x+i), (y+j)) != 'V') { return false; }

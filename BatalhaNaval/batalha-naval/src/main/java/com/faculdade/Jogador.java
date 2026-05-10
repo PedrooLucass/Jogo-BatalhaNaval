@@ -2,7 +2,6 @@ package com.faculdade;
 
 import java.util.ArrayList;
 import java.util.List;
-//import com.faculdade.*;
 
 public class Jogador {
     public String nome;
@@ -20,6 +19,10 @@ public class Jogador {
 
     public ClientHandler getClientHandler() {
         return clientHandler;
+    }
+
+    public List<Embarcacao> getEmbarcacoes() {
+        return embarcacoes;
     }
 
     private void inicializarInventario(){

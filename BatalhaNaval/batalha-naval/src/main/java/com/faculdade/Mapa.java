@@ -2,22 +2,45 @@ package com.faculdade;
 
 public class Mapa {
 
-    public static int TAMANHO_MAPA = 30;
+    public static final int TAMANHO_MAPA = 30;
 
     private char[][] visivel;
     private char[][] oculto;
 
     public Mapa() {
+
         visivel = new char[TAMANHO_MAPA][TAMANHO_MAPA];
         oculto = new char[TAMANHO_MAPA][TAMANHO_MAPA];
+
         inicializarMapa();
     }
 
-    public int getTamanhoMapa() { return TAMANHO_MAPA; }
-    public char getCoordenadaOculta(int x, int y) { return oculto[x][y]; }
+    public int getTamanhoMapa() {
+        return TAMANHO_MAPA;
+    }
 
-    private void inicializarMapa(){
-        for(int i = 0; i < TAMANHO_MAPA; i++) {
+    public char getCoordenadaOculta(int x, int y) {
+        return oculto[x][y];
+    }
+
+    public char getCoordenadaVisivel(int x, int y) {
+        return visivel[x][y];
+    }
+
+    public void setCoordenadaOculta(int x, int y, char simbolo) {
+        if (coordenadaValida(x, y)) {
+            oculto[x][y] = simbolo;
+        }
+    }
+
+    public void setCoordenadaVisivel(int x, int y, char simbolo) {
+        if (coordenadaValida(x, y)) {
+            visivel[x][y] = simbolo;
+        }
+    }
+
+    private void inicializarMapa() {
+        for (int i = 0; i < TAMANHO_MAPA; i++) {
             for (int j = 0; j < TAMANHO_MAPA; j++) {
                 visivel[i][j] = 'O';
                 oculto[i][j] = 'V';
@@ -25,37 +48,71 @@ public class Mapa {
         }
     }
 
-    public boolean verificarCoordenadaParaEmbarcacao(Coordenada coordenada) {
-        int x = coordenada.getX();
-        int y = coordenada.getY();
+    public boolean coordenadaValida(int x, int y) {
+        return x >= 0 && x < TAMANHO_MAPA && y >= 0 && y < TAMANHO_MAPA;
+    }
 
-        for(int i = 0; i < 2; i++) {
-            for(int j = 0; j < 2; j++) {
-                if (getCoordenadaOculta((x+i), (y+j)) != 'V') { return false; }
-                if (getCoordenadaOculta((x-i), (y-j)) != 'V') { return false; }
-                if (getCoordenadaOculta((x+i), (y-j)) != 'V') { return false; }
-                if (getCoordenadaOculta((x-i), (y+j)) != 'V') { return false; }
+    public boolean coordenadaLivre(int x, int y) {
+        if (!coordenadaValida(x, y)) {
+            return false;
+        }
+
+        return oculto[x][y] == 'V';
+    }
+
+    public boolean verificarAreaLivre(int x, int y) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                int novoX = x + i;
+                int novoY = y + j;
+
+                if (!coordenadaValida(novoX, novoY)) {
+                    continue;
+                }
+
+                if (!coordenadaLivre(novoX, novoY)) {
+                    return false;
+                }
             }
         }
+
         return true;
     }
 
-    public void printarMapaVisivel(){
-        for(int i = 0; i < TAMANHO_MAPA; i++) {
+    public void registrarAtaque(int x, int y, boolean acertou) {
+        if (!coordenadaValida(x, y)) {
+            return;
+        }
+        if (acertou) {
+            visivel[x][y] = 'X';
+        } else {
+            visivel[x][y] = 'Y';
+        }
+    }
+
+    public void printarMapaVisivel() {
+
+        System.out.println("\n===== MAPA VISÍVEL =====");
+
+        for (int i = 0; i < TAMANHO_MAPA; i++) {
             for (int j = 0; j < TAMANHO_MAPA; j++) {
                 System.out.print(visivel[i][j] + " ");
             }
+
             System.out.println();
         }
     }
 
     public void printarMapaOculto() {
+
+        System.out.println("\n===== MAPA OCULTO =====");
+
         for (int i = 0; i < TAMANHO_MAPA; i++) {
             for (int j = 0; j < TAMANHO_MAPA; j++) {
-                System.out.print(visivel[i][j] + " ");
+                System.out.print(oculto[i][j] + " ");
             }
+
             System.out.println();
         }
     }
-
 }

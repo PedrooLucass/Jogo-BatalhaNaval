@@ -50,7 +50,8 @@ public class Servidor {
 
             servidor.startServidor();
 
-            Jogo jogo = new Jogo(servidor);
+            Jogo jogo = new Jogo(//servidor
+                     );
             jogo.iniciar();
         } catch (Exception e) {
             throw new RuntimeException(e);

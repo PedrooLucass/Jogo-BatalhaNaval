@@ -3,19 +3,22 @@ package com.faculdade;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Jogo {
 
+    private BlockingQueue<Mensagem> filaMensagens = new LinkedBlockingQueue<>();
     List<Jogador> jogadores;
     Mapa mapa;
 
     Servidor servidor;
 
     public Jogo(
-            //Servidor servidor
+            Servidor servidor
     ) {
         jogadores = new ArrayList<>();
-        //this.servidor = servidor;
+        this.servidor = servidor;
         mapa = new Mapa();
     }
 
@@ -27,15 +30,11 @@ public class Jogo {
 
         for (Jogador jogador : jogadores) {
 
-            //servidor.enviarMensagemPrivada(jogador, new Mensagem("Gostaria de posicionar sua embarcação ou prefere deixar-lá posicionar aleatóriamente?"));
+            servidor.enviarMensagemPrivada(jogador, new Mensagem("Gostaria de posicionar sua embarcação ou prefere deixar-lá posicionar aleatóriamente?"));
 
-            //servidor.enviarMensagemPrivada(jogador, new Mensagem("1 - Prefiro eu mesmo posicionar\n2 - Prefiro aleatóriamente"));
+            servidor.enviarMensagemPrivada(jogador, new Mensagem("1 - Prefiro eu mesmo posicionar\n2 - Prefiro aleatóriamente"));
 
-            // Ainda não temos função para entrada do cliente
-
-            // É mt embarcação pra ficar colocando manualmente, fica mt chato colocar um a um ent melhor a gnt deixar essa opcao, ainda mais pra quando formos debugar
-
-            int opcaoEmbarcacao = 2;
+            int opcaoEmbarcacao = esperarJogadaInt(jogador, 1, 2);
 
             boolean aleatoriamente = (opcaoEmbarcacao != 1);
 
@@ -63,16 +62,11 @@ public class Jogo {
                 y = random.nextInt(mapa.getTamanhoMapa());
 
             } else {
+                servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada X:"));
+                x = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa());
 
-                //arrumar isso aqui depois pra poder permitir o colocamento manual dos barco
-
-                //servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada X:"));
-
-                x = 8;
-
-                //servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada Y:"));
-
-                y = 8;
+                servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada Y:"));
+                y = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa());
             }
 
             Coordenada coordenadaEscolhida = new Coordenada(x, y);
@@ -107,11 +101,11 @@ public class Jogo {
 
             } else {
 
-                //servidor.enviarMensagemPrivada(jogador, new Mensagem("Direção X:"));
+                servidor.enviarMensagemPrivada(jogador, new Mensagem("Direção X:"));
 
                 seguimentoX = 1;
 
-                //servidor.enviarMensagemPrivada(jogador, new Mensagem("Direção Y:"));
+                servidor.enviarMensagemPrivada(jogador, new Mensagem("Direção Y:"));
 
                 seguimentoY = 0;
             }
@@ -152,7 +146,7 @@ public class Jogo {
 
             if (!valido) {
                 if (!aleatoriamente) {
-                    //servidor.enviarMensagemPrivada(jogador, new Mensagem("Posição inválida!"));
+                    servidor.enviarMensagemPrivada(jogador, new Mensagem("Posição inválida!"));
                 }
 
                 continue;
@@ -170,6 +164,41 @@ public class Jogo {
         }
     }
 
+    public void adicionarMensagem(Mensagem mensagem) {
+        filaMensagens.add(mensagem);
+    }
+    public int esperarJogadaInt(Jogador jogador, int numeroMIN, int numeroMAX) {
+        while(true) {
+            try {
+                while (true) {
+                    Mensagem mensagem = filaMensagens.take();
+
+                    if (mensagem.getJogador().equals(jogador)) {
+                        if (Integer.parseInt(mensagem.getMensagem()) >= numeroMIN && Integer.parseInt(mensagem.getMensagem()) <= numeroMAX) {
+                            return Integer.parseInt(mensagem.getMensagem());
+                        } else {
+                            servidor.enviarMensagemPrivada(jogador, new Mensagem("Número fora do escopo permitido! "));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public String esperarJogadaStr(Jogador jogador) {
+        while(true) {
+            try {
+                Mensagem mensagem = filaMensagens.take();
+
+                if (mensagem.getJogador().equals(jogador)) {
+                    return mensagem.getMensagem();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public void iniciar() {
 
         //setJogadores();

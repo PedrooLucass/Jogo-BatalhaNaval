@@ -8,65 +8,67 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
-    Jogador jogador;
-    Socket socket;
-    BufferedReader reader;
-    BufferedWriter writer;
-    Scanner scanner;
+    private Jogador jogador;
+    private Socket socket;
+    private BufferedReader reader;
+    private BufferedWriter writer;
+    private Servidor server;
 
-    public ClientHandler(Socket socket) {
-        this.socket = socket;
+    public ClientHandler(Socket socket, Servidor server) {
         try {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.server = server;
+            this.socket = socket;
+            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            writer.write("Digite o seu nome: ");
+            writer.write("Digite seu nome:");
             writer.newLine();
             writer.flush();
 
-            jogador = new Jogador(reader.readLine());
-            jogador.setClientHandler(this);
+            String nome = reader.readLine();
 
+            this.jogador = new Jogador(nome);
+            this.jogador.setClientHandler(this);
         } catch (Exception e) {
-            closeClientHandler(socket, reader, writer, scanner);
-            throw new RuntimeException(e);
+            closeEverything(socket, reader, writer);
         }
+    }
+    public Jogador getJogador() {
+        return this.jogador;
     }
 
     @Override
     public void run() {
-        try {
-            while (socket.isConnected()) {
-                String mensagem = reader.readLine();
+        while (socket.isConnected()) {
+            try {
+                Mensagem mensagem = new Mensagem(reader.readLine());
+                if (mensagem.getMensagem() == null) break;
 
-                if (mensagem == null) break;
+                mensagem.setJogador(jogador);
+                server.processarMensagemClient(mensagem);
 
-                /*
-                tem que fazer um servidor.processarMensagem() para que o Servidor mande ao Jogo e o Jogo faça o comando do jogador
-                eu PARTICULARMENTE não gostaria de repetir o mesmo jeito que fiz para as mensagens do truco (com o BlockingQueue),
-                gostaria de fazer de uma forma diferente, mas caso queira reutilizar a mesma lógica do truco também vale,
-                afinal estamos com pouco tempo.
-                */
+            } catch (Exception e) {
+                closeEverything(socket, reader, writer);
+                break;
             }
-        } catch (Exception e) {
-            closeClientHandler(socket, reader, writer, scanner);
-            throw new RuntimeException(e);
         }
     }
 
-    public void enviarMensagem(Mensagem mensagem) {
+    public void setJogador(Jogador jogador) {
+        this.jogador = jogador;
+    }
+
+    public void enviarMensagem(String mensagem) {
         try {
-            writer.write(mensagem.getMensagem());
+            writer.write(mensagem); // Aqui ele manda a mensagem e o newLine e o flush só servem pra limpar o writer
             writer.newLine();
             writer.flush();
         } catch (Exception e) {
-            closeClientHandler(socket, reader, writer, scanner);
-            throw new RuntimeException(e);
+            closeEverything(socket, reader, writer);
         }
     }
 
-
-    public void closeClientHandler(Socket socket, BufferedReader reader, BufferedWriter writer, Scanner scanner) {
+    public void closeEverything(Socket socket, BufferedReader reader, BufferedWriter writer) {
         try {
             if (socket != null) {
                 socket.close();
@@ -77,12 +79,8 @@ public class ClientHandler implements Runnable {
             if (writer != null) {
                 writer.close();
             }
-            if (scanner != null) {
-                scanner.close();
-            }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-
     }
 }

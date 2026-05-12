@@ -79,14 +79,21 @@ public class Mapa {
         return true;
     }
 
-    public void registrarAtaque(int x, int y, boolean acertou) {
+    public boolean atacarCoordenada(int x, int y) {
+
         if (!coordenadaValida(x, y)) {
-            return;
+            return false; // inválido
         }
-        if (acertou) {
-            visivel[x][y] = 'X';
-        } else {
-            visivel[x][y] = 'Y';
+
+        char alvo = oculto[x][y];
+
+        if (alvo == 'V') { //acertou a agua
+            return false;
+        } else if (alvo == 'X'){ //acertou um barco ja destruido
+            return false;
+        }
+        else{ // acertou um barco nao destruido
+            return true;
         }
     }
 

@@ -1,16 +1,12 @@
 package com.faculdade;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Jogador {
-    public String nome;
+    private String nome;
     private ClientHandler clientHandler;
-    List<Embarcacao> embarcacoes = new ArrayList<>();
+    int pontuacao;
 
-    public Jogador(String nome) {
-        this.nome = nome;
-        inicializarInventario();
+    public Jogador() {
+        pontuacao = 0;
     }
 
     public void setClientHandler(ClientHandler clientHandler) {
@@ -21,29 +17,13 @@ public class Jogador {
         return clientHandler;
     }
 
-    public List<Embarcacao> getEmbarcacoes() {
-        return embarcacoes;
+    public int getPontuacao(){
+        return pontuacao;
     }
 
-    private void inicializarInventario(){
-        for (int i = 0; i < 2; i++){
-            embarcacoes.add(new PortaAvioes());
-        }
+    public void adicionarPonto(){ pontuacao++; }
 
-        for (int i = 0; i < 3; i++){
-            embarcacoes.add(new Destroyer());
-        }
+    public String getNome(){ return nome; }
 
-        for (int i = 0; i < 4; i++){
-            embarcacoes.add(new Submarino());
-        }
-
-        for (int i = 0; i < 5; i++){
-            embarcacoes.add(new Fragata());
-        }
-
-        for (int i = 0; i < 6; i++){
-            embarcacoes.add(new Bote());
-        }
-    }
+    public void setNome(String nome) { this.nome = nome; }
 }

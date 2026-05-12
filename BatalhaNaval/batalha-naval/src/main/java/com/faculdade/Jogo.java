@@ -11,36 +11,49 @@ public class Jogo {
     private BlockingQueue<Mensagem> filaMensagens = new LinkedBlockingQueue<>();
     List<Jogador> jogadores;
     Mapa mapa;
+    private List<Embarcacao> embarcacoes;
 
     Servidor servidor;
 
-    public Jogo(
-            Servidor servidor
-    ) {
+    public Jogo(Servidor servidor) {
         jogadores = new ArrayList<>();
         this.servidor = servidor;
         mapa = new Mapa();
+        embarcacoes = new ArrayList<>();
     }
 
-    /*public void setJogadores() {
+    public void setJogadores() {
         jogadores = servidor.getJogadores();
-    }*/
+    }
+
+    private void criarEmbarcacoes() {
+
+        for (int i = 0; i < 2; i++) {
+            embarcacoes.add(new PortaAvioes());
+        }
+
+        for (int i = 0; i < 3; i++) {
+            embarcacoes.add(new Destroyer());
+        }
+
+        for (int i = 0; i < 4; i++) {
+            embarcacoes.add(new Submarino());
+        }
+
+        for (int i = 0; i < 5; i++) {
+            embarcacoes.add(new Fragata());
+        }
+
+        for (int i = 0; i < 6; i++) {
+            embarcacoes.add(new Bote());
+        }
+    }
 
     public void inicializarEmbarcacoes() {
+        criarEmbarcacoes();
 
-        for (Jogador jogador : jogadores) {
-
-            servidor.enviarMensagemPrivada(jogador, new Mensagem("Gostaria de posicionar sua embarcação ou prefere deixar-lá posicionar aleatóriamente?"));
-
-            servidor.enviarMensagemPrivada(jogador, new Mensagem("1 - Prefiro eu mesmo posicionar\n2 - Prefiro aleatóriamente"));
-
-            int opcaoEmbarcacao = esperarJogadaInt(jogador, 1, 2);
-
-            boolean aleatoriamente = (opcaoEmbarcacao != 1);
-
-            for (Embarcacao embarcacao : jogador.getEmbarcacoes()) {
-                posicionarEmbarcacao(jogador, embarcacao, aleatoriamente);
-            }
+        for (Embarcacao embarcacao : embarcacoes) {
+            posicionarEmbarcacao(null, embarcacao, true);
         }
     }
 
@@ -63,10 +76,10 @@ public class Jogo {
 
             } else {
                 servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada X:"));
-                x = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa());
+                x = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa()-1);
 
                 servidor.enviarMensagemPrivada(jogador, new Mensagem(embarcacaoAux.getNome() + ": Qual a coordenada Y:"));
-                y = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa());
+                y = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa()-1);
             }
 
             Coordenada coordenadaEscolhida = new Coordenada(x, y);
@@ -167,6 +180,7 @@ public class Jogo {
     public void adicionarMensagem(Mensagem mensagem) {
         filaMensagens.add(mensagem);
     }
+
     public int esperarJogadaInt(Jogador jogador, int numeroMIN, int numeroMAX) {
         while(true) {
             try {
@@ -186,6 +200,7 @@ public class Jogo {
             }
         }
     }
+
     public String esperarJogadaStr(Jogador jogador) {
         while(true) {
             try {
@@ -199,10 +214,91 @@ public class Jogo {
             }
         }
     }
-    public void iniciar() {
 
-        //setJogadores();
+    public void iniciarRodada() {
+        for (Jogador jogador : jogadores) {
+            servidor.enviarMensagemPrivada(jogador, new Mensagem("X:"));
+
+            int x = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa() - 1);
+
+            servidor.enviarMensagemPrivada(jogador, new Mensagem("Y:"));
+
+            int y = esperarJogadaInt(jogador, 0, mapa.getTamanhoMapa() - 1);
+
+            boolean acertou = atacarCoordenada(jogador, x, y);
+
+            if (acertou) {
+                servidor.enviarMensagemPrivada(jogador, new Mensagem("Embarcação destruída!"));
+                jogador.adicionarPonto();
+
+            } else {
+                servidor.enviarMensagemPrivada(jogador, new Mensagem("Água!"));
+            }
+
+            mapa.printarMapaVisivel();
+            mapa.printarMapaOculto();
+        }
+    }
+
+    private void destruirEmbarcacao(Embarcacao embarcacao) {
+
+        embarcacao.setDestruida(true);
+
+        for (Coordenada coordenada : embarcacao.getCoordenadas()) {
+
+            mapa.setCoordenadaOculta(coordenada.getX(), coordenada.getY(), 'X');
+
+            mapa.setCoordenadaVisivel(coordenada.getX(), coordenada.getY(), 'X');
+        }
+        embarcacoes.remove(embarcacao);
+
+        System.out.println(embarcacao.getNome() + " destruída!");
+    }
+
+    public boolean atacarCoordenada(Jogador jogador, int x, int y) {
+
+        for (Embarcacao embarcacao : embarcacoes) {
+            if (embarcacao.isDestruida()) {
+                continue;
+            }
+
+            for (Coordenada coordenada : embarcacao.getCoordenadas()) {
+                if (coordenada.getX() == x && coordenada.getY() == y) {
+                    destruirEmbarcacao(embarcacao);
+
+                    jogador.adicionarPonto();
+
+                    return true;
+                }
+            }
+        }
+
+        mapa.setCoordenadaVisivel(x, y, 'A');
+
+        return false;
+    }
+
+    public void iniciar() {
+        setJogadores();
 
         inicializarEmbarcacoes();
+
+        while (!embarcacoes.isEmpty()){
+            iniciarRodada();
+        }
+
+        if (jogadores.get(0).getPontuacao() == jogadores.get(1).getPontuacao()){
+            servidor.mensagemParaTodos(new Mensagem("Empate!"));
+        }
+        else if (jogadores.get(0).getPontuacao() > jogadores.get(1).getPontuacao()){
+            servidor.mensagemParaTodos(new Mensagem(jogadores.get(0).getNome() + " Venceu!"));
+        }
+        else{
+            servidor.mensagemParaTodos(new Mensagem(jogadores.get(1).getNome() + " Venceu!"));
+        }
+
+        servidor.mensagemParaTodos(new Mensagem(jogadores.get(0).getNome() + ": " + jogadores.get(0).getPontuacao()));
+
+        servidor.mensagemParaTodos(new Mensagem(jogadores.get(1).getNome() + ": " + jogadores.get(1).getPontuacao()));
     }
 }

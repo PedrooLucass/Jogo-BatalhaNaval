@@ -27,7 +27,8 @@ public class ClientHandler implements Runnable {
 
             String nome = reader.readLine();
 
-            this.jogador = new Jogador(nome);
+            this.jogador = new Jogador();
+            this.jogador.setNome(nome);
             this.jogador.setClientHandler(this);
         } catch (Exception e) {
             closeEverything(socket, reader, writer);

@@ -28,18 +28,30 @@ public class Servidor {
 
     public void startServidor() {
         try {
+            System.out.println("Esperando jogadores...");
+
             while (clientHandlers.size() != 2) {
                 Socket socket = serverSocket.accept();
+
+                System.out.println("Novo cliente conectado!");
 
                 ClientHandler clientHandler = new ClientHandler(socket, this);
 
                 clientHandlers.add(clientHandler);
                 jogadores.add(clientHandler.getJogador());
 
+                System.out.println("Jogador registrado: " + clientHandler.getJogador().getNome());
+
+
                 Thread thread = new Thread(clientHandler);
                 thread.start();
+
+                System.out.println("Jogadores conectados: " + clientHandlers.size() + "/2");
             }
+                System.out.println("Dois jogadores conectados!");
+
         } catch (Exception e) {
+            e.printStackTrace();
             closeServidor();
         }
     }

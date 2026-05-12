@@ -10,6 +10,8 @@ public class Embarcacao {
     protected int tamanho;
     private boolean destruida;
 
+    public Embarcacao() {}
+
     public int getTamanho() { return tamanho; }
 
     public String getNome() { return nome; }

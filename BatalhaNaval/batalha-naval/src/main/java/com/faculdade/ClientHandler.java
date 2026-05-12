@@ -1,5 +1,7 @@
 package com.faculdade;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -8,6 +10,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
+    @JsonIgnore
     private Jogador jogador;
     private Socket socket;
     private BufferedReader reader;

@@ -1,5 +1,10 @@
 package com.faculdade;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Mapa {
 
     public static final int TAMANHO_MAPA = 30;
@@ -7,12 +12,7 @@ public class Mapa {
     private char[][] visivel;
     private char[][] oculto;
 
-    public Mapa() {
-
-        visivel = new char[TAMANHO_MAPA][TAMANHO_MAPA];
-        oculto = new char[TAMANHO_MAPA][TAMANHO_MAPA];
-
-        inicializarMapa();
+    public Mapa(){
     }
 
     public int getTamanhoMapa() {
@@ -39,7 +39,10 @@ public class Mapa {
         }
     }
 
-    private void inicializarMapa() {
+    public void inicializarMapa() {
+        visivel = new char[TAMANHO_MAPA][TAMANHO_MAPA];
+        oculto = new char[TAMANHO_MAPA][TAMANHO_MAPA];
+
         for (int i = 0; i < TAMANHO_MAPA; i++) {
             for (int j = 0; j < TAMANHO_MAPA; j++) {
                 visivel[i][j] = 'O';
@@ -114,9 +117,21 @@ public class Mapa {
 
         System.out.println("\n===== MAPA OCULTO =====");
 
+        System.out.print("    ");
+        for (int z = 0; z < TAMANHO_MAPA; z++) {
+            if (z < 9) {
+                System.out.print("0");
+            }
+            System.out.print((z+1) + "  ");
+        }
+        System.out.println();
         for (int i = 0; i < TAMANHO_MAPA; i++) {
+            if (i < 9) {
+                System.out.print("0");
+            }
+            System.out.print((i+1) + "   ");
             for (int j = 0; j < TAMANHO_MAPA; j++) {
-                System.out.print(oculto[i][j] + " ");
+                System.out.print(oculto[i][j] + "   ");
             }
 
             System.out.println();

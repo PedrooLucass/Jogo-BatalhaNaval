@@ -1,8 +1,11 @@
 package com.faculdade;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Jogador {
-    private String nome;
+    @JsonIgnore
     private ClientHandler clientHandler;
+    private String nome;
     int pontuacao;
 
     public Jogador() {

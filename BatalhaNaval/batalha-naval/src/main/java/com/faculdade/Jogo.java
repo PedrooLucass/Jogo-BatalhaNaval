@@ -1,5 +1,6 @@
 package com.faculdade;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,13 +13,16 @@ public class Jogo {
     List<Jogador> jogadores;
     Mapa mapa;
     private List<Embarcacao> embarcacoes;
+    SaveManager saveManager = new SaveManager().carregar();
 
     Servidor servidor;
 
-    public Jogo(Servidor servidor) {
+    public Jogo(Servidor servidor) throws IOException {
         jogadores = new ArrayList<>();
         this.servidor = servidor;
         mapa = new Mapa();
+        mapa.inicializarMapa();
+
         embarcacoes = new ArrayList<>();
     }
 
@@ -215,7 +219,7 @@ public class Jogo {
         }
     }
 
-    public void iniciarRodada() {
+    public void iniciarRodada() throws IOException {
         for (Jogador jogador : jogadores) {
             servidor.enviarMensagemPrivada(jogador, new Mensagem("X:"));
 
@@ -237,6 +241,8 @@ public class Jogo {
 
             mapa.printarMapaVisivel();
             mapa.printarMapaOculto();
+
+            saveManager.salvar(embarcacoes, jogadores, mapa);
         }
     }
 
@@ -278,7 +284,7 @@ public class Jogo {
         return false;
     }
 
-    public void iniciar() {
+    public void iniciar() throws IOException {
         setJogadores();
 
         inicializarEmbarcacoes();
@@ -300,5 +306,7 @@ public class Jogo {
         servidor.mensagemParaTodos(new Mensagem(jogadores.get(0).getNome() + ": " + jogadores.get(0).getPontuacao()));
 
         servidor.mensagemParaTodos(new Mensagem(jogadores.get(1).getNome() + ": " + jogadores.get(1).getPontuacao()));
+
+        saveManager.clear();
     }
 }
